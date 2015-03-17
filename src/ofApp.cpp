@@ -7,24 +7,36 @@ void ofApp::setup()
 {
 
 #ifdef _USE_LIVE_VIDEO
+    vidGrabber.listDevices();
+    // On défini la flux vidéo comme actif
     vidGrabber.setVerbose(true);
+    // Défini le nombre d'image par seconde
+    vidGrabber.setDesiredFrameRate(60);
+    // On défini la taille du flux vidéo
     vidGrabber.initGrabber(800,600);
 #endif
 
+    // Passe le flux vidéo en niveaux de gris
     grayImage.allocate(800,600);
+    // Passe le flux vidéo en différence
     grayDiff.allocate(800,600);
 
+    // Active le flux vidéo en différence
     bLearnBakground = true;
     threshold = 80;
 }
 
 //--------------------------------------------------------------
+// Permet de faire des mise a jour dans la page de l'application
 void ofApp::update()
 {
+    // Défini la couleur du fond
     ofBackground(100,100,100);
 
+    //Instenciation de l'objet pour la vidéo (false -> inactif)
     bool bNewFrame = false;
 
+// On active l'objet vidéo pour la mise a jour du flux
 #ifdef _USE_LIVE_VIDEO
     vidGrabber.update();
     bNewFrame = vidGrabber.isFrameNew();
@@ -33,15 +45,17 @@ void ofApp::update()
     bNewFrame = vidPlayer.isFrameNew();
 #endif
 
+// Si la bNewFrame est activé
     if (bNewFrame)
     {
 
+//On défini la taille du flux vidéo
 #ifdef _USE_LIVE_VIDEO
         colorImg.setFromPixels(vidGrabber.getPixels(), 800,600);
 #else
         colorImg.setFromPixels(vidPlayer.getPixels(), 320,240);
 #endif
-
+        // On transforme l'image couleur en image noir et blanc
         grayImage = colorImg;
         if (bLearnBakground == true)
         {
@@ -49,7 +63,7 @@ void ofApp::update()
             bLearnBakground = false;
         }
 
-        // take the abs value of the difference between background and incoming and then threshold:
+        // Prend la valeur de la différence entre le fond et le flux puis on y applique un seuil
         grayDiff.absDiff(grayBg, grayImage);
         grayDiff.threshold(threshold);
 

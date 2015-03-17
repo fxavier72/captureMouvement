@@ -138,5 +138,5 @@ OF_ROOT = ${HOME}/openframeworks
 #		(default) PROJECT_CC = (blank)
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-# PROJECT_CXX =
-# PROJECT_CC =
+PROJECT_CXX = /usr/lib/distcc/arm-linux-gnueabihf-g++
+PROJECT_CC = /usr/lib/distcc/arm-linux-gnueabihf-gcc

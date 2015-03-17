@@ -1,6 +1,9 @@
 #pragma once
-
 #include "ofMain.h"
+//Inclue la bibliothèque d'openCV
+#include "ofxOpenCv.h"
+//Permet d'utiliser la camera en live
+#define _USE_LIVE_VIDEO
 
 class ofApp : public ofBaseApp{
 
@@ -19,10 +22,20 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		ofVideoGrabber 		vidGrabber;
-		unsigned char * 	videoInverted;
-		ofTexture			videoTexture;
-		int 				camWidth;
-		int 				camHeight;
+		//On instancie la caméra live
+		#ifdef _USE_LIVE_VIDEO
+		  ofVideoGrabber 		vidGrabber;
+		#endif
+
+        ofxCvColorImage			colorImg;
+
+        ofxCvGrayscaleImage 	grayImage;
+		ofxCvGrayscaleImage 	grayBg;
+		ofxCvGrayscaleImage 	grayDiff;
+
+        ofxCvContourFinder 	contourFinder;
+
+		int 				threshold;
+		bool				bLearnBakground;
 
 };

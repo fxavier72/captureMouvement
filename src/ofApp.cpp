@@ -1,50 +1,108 @@
 #include "ofApp.h"
-
+#define _USE_LIVE_VIDEO
 //--------------------------------------------------------------
-void ofApp::setup(){
-    camWidth 		= 300;	// try to grab at this size.
-	camHeight 		= 200;
+//--------------------------------------------------------------
 
-    //we can now get back a list of devices.
-	vector<ofVideoDevice> devices = vidGrabber.listDevices();
+void ofApp::setup()
+{
 
-    for(int i = 0; i < devices.size(); i++){
-		cout << devices[i].id << ": " << devices[i].deviceName;
-        if( devices[i].bAvailable ){
-            cout << endl;
-        }else{
-            cout << " - unavailable " << endl;
-        }
-	}
+#ifdef _USE_LIVE_VIDEO
+    vidGrabber.setVerbose(true);
+    vidGrabber.initGrabber(800,600);
+#endif
 
-	vidGrabber.setDeviceID(0);
-	vidGrabber.setDesiredFrameRate(60);
-	vidGrabber.initGrabber(camWidth,camHeight);
+    grayImage.allocate(800,600);
+    grayDiff.allocate(800,600);
 
-	videoInverted 	= new unsigned char[camWidth*camHeight*3];
-	videoTexture.allocate(camWidth,camHeight, GL_RGB);
-	ofSetVerticalSync(true);
+    bLearnBakground = true;
+    threshold = 80;
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update()
+{
     ofBackground(100,100,100);
 
-	vidGrabber.update();
+    bool bNewFrame = false;
 
-	if (vidGrabber.isFrameNew()){
-		int totalPixels = camWidth*camHeight*3;
-		unsigned char * pixels = vidGrabber.getPixels();
-		for (int i = 0; i < totalPixels; i++){
-			videoInverted[i] = 255 - pixels[i];
-		}
-		videoTexture.loadData(videoInverted, camWidth,camHeight, GL_RGB);
-	}
+#ifdef _USE_LIVE_VIDEO
+    vidGrabber.update();
+    bNewFrame = vidGrabber.isFrameNew();
+#else
+    vidPlayer.update();
+    bNewFrame = vidPlayer.isFrameNew();
+#endif
+
+    if (bNewFrame)
+    {
+
+#ifdef _USE_LIVE_VIDEO
+        colorImg.setFromPixels(vidGrabber.getPixels(), 800,600);
+#else
+        colorImg.setFromPixels(vidPlayer.getPixels(), 320,240);
+#endif
+
+        grayImage = colorImg;
+        if (bLearnBakground == true)
+        {
+            grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
+            bLearnBakground = false;
+        }
+
+        // take the abs value of the difference between background and incoming and then threshold:
+        grayDiff.absDiff(grayBg, grayImage);
+        grayDiff.threshold(threshold);
+
+        // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+        // also, find holes is set to true so we will get interior contours as well....
+        contourFinder.findContours(grayDiff, 20, (800*600)/3, 10, true);	// find holes
+    }
 
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw()
+{
+
+    // draw the incoming, the grayscale, the bg and the thresholded difference
+    ofSetHexColor(0xffffff);
+    grayImage.draw(360,20);
+    grayDiff.draw(360,280);
+
+    // then draw the contours:
+
+    ofFill();
+    ofSetHexColor(0x333333);
+    ofRect(360,540,800,600);
+    ofSetHexColor(0xffffff);
+
+    // we could draw the whole contour finder
+    //contourFinder.draw(360,540);
+
+    // or, instead we can draw each blob individually from the blobs vector,
+    // this is how to get access to them:
+    for (int i = 0; i < contourFinder.nBlobs; i++)
+    {
+        contourFinder.blobs[i].draw(360,540);
+
+        // draw over the centroid if the blob is a hole
+        ofSetColor(255);
+        if(contourFinder.blobs[i].hole)
+        {
+            ofDrawBitmapString("hole",
+                               contourFinder.blobs[i].boundingRect.getCenter().x + 360,
+                               contourFinder.blobs[i].boundingRect.getCenter().y + 540);
+        }
+    }
+
+    // finally, a report:
+    ofSetHexColor(0xffffff);
+    stringstream reportStr;
+    reportStr << "bg subtraction and blob detection" << endl
+              << "press ' ' to capture bg" << endl
+              << "threshold " << threshold << " (press: +/-)" << endl
+              << "num blobs found " << contourFinder.nBlobs << ", fps: " << ofGetFrameRate();
+    ofDrawBitmapString(reportStr.str(), 20, 600);
 
 }
 

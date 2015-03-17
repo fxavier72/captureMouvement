@@ -13,13 +13,13 @@ void ofApp::setup()
     // Défini le nombre d'image par seconde
     vidGrabber.setDesiredFrameRate(60);
     // On défini la taille du flux vidéo
-    vidGrabber.initGrabber(320,240);
+    vidGrabber.initGrabber(800,600);
 #endif
 
     // Passe le flux vidéo en niveaux de gris
-    grayImage.allocate(320,240);
+    grayImage.allocate(800,600);
     // Passe le flux vidéo en différence
-    grayDiff.allocate(320,240);
+    grayDiff.allocate(800,600);
 
     // Active le flux vidéo en différence
     bLearnBakground = true;
@@ -51,9 +51,9 @@ void ofApp::update()
 
 //On défini la taille du flux vidéo
 #ifdef _USE_LIVE_VIDEO
-        colorImg.setFromPixels(vidGrabber.getPixels(), 320,240);
+        colorImg.setFromPixels(vidGrabber.getPixels(), 800,600);
 #else
-        colorImg.setFromPixels(vidPlayer.getPixels(), 320,240);
+        colorImg.setFromPixels(vidPlayer.getPixels(), 800,600);
 #endif
         // On transforme l'image couleur en image noir et blanc
         grayImage = colorImg;
@@ -69,7 +69,7 @@ void ofApp::update()
 
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayDiff, 20, (320*240)/3, 10, true);	// find holes
+        contourFinder.findContours(grayDiff, 20, (800*600)/3, 10, true);	// find holes
     }
 
 }
@@ -87,7 +87,7 @@ void ofApp::draw()
 
     ofFill();
     ofSetHexColor(0x333333);
-    ofRect(360,540,320,240);
+    ofRect(360,540,800,600);
     ofSetHexColor(0xffffff);
 
     // we could draw the whole contour finder
@@ -116,7 +116,7 @@ void ofApp::draw()
               << "press ' ' to capture bg" << endl
               << "threshold " << threshold << " (press: +/-)" << endl
               << "num blobs found " << contourFinder.nBlobs << ", fps: " << ofGetFrameRate();
-    ofDrawBitmapString(reportStr.str(), 20, 240);
+    ofDrawBitmapString(reportStr.str(), 20, 600);
 
 }
 

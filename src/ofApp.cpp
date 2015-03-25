@@ -24,6 +24,7 @@ void ofApp::setup()
     // Active le flux vidéo en différence
     bLearnBakground = true;
     threshold = 80;
+    sender.setup(HOST, PORT);
 }
 
 //--------------------------------------------------------------
@@ -67,11 +68,34 @@ void ofApp::update()
         grayDiff.absDiff(grayBg, grayImage);
         grayDiff.threshold(threshold);
 
+        // On crée les contours
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
         contourFinder.findContours(grayDiff, 20, (800*600)/3, 10, true);	// find holes
-    }
 
+        for (int i = 0; i < contourFinder.nBlobs; i++)
+        {
+            contourFinder.blobs[i].draw(360,540);
+
+            // draw over the centroid if the blob is a hole
+            ofSetColor(255);
+                if(contourFinder.blobs[i].hole)
+                {
+                    ofDrawBitmapString("hole", contourFinder.blobs[i].centroid);
+                    ofxOscMessage a;
+                    a.setAddress("/mallarme/annabelle/position");
+                    a.addFloatArg(blob.centroid.x);
+                    a.addFloatArg(blob.centroid.y);
+                    sender.sendMessage(a);
+
+                    ofxOscMessage f;
+                    f.setAddress("/mallarme/florence/position");
+                    f.addFloatArg(blob.centroid.x);
+                    f.addFloatArg(blob.centroid.y);
+                    sender.sendMessage(f);
+                }
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -102,21 +126,20 @@ void ofApp::draw()
         // draw over the centroid if the blob is a hole
         ofSetColor(255);
         if(contourFinder.blobs[i].hole)
-        {
-            ofDrawBitmapString("hole",
-                               contourFinder.blobs[i].boundingRect.getCenter().x + 360,
-                               contourFinder.blobs[i].boundingRect.getCenter().y + 540);
-        }
+                {
+                    ofDrawBitmapString("hole",
+                                       contourFinder.blobs[i].centroid);
+                }
     }
 
     // finally, a report:
-    ofSetHexColor(0xffffff);
+    /*ofSetHexColor(0xffffff);
     stringstream reportStr;
     reportStr << "bg subtraction and blob detection" << endl
               << "press ' ' to capture bg" << endl
               << "threshold " << threshold << " (press: +/-)" << endl
               << "num blobs found " << contourFinder.nBlobs << ", fps: " << ofGetFrameRate();
-    ofDrawBitmapString(reportStr.str(), 20, 600);
+    ofDrawBitmapString(reportStr.str(), 20, 600);*/
 
 }
 

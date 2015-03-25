@@ -2,8 +2,11 @@
 #include "ofMain.h"
 //Inclue la bibliothèque d'openCV
 #include "ofxOpenCv.h"
+#include "ofxOsc.h"
 //Permet d'utiliser la camera en live
 #define _USE_LIVE_VIDEO
+#define HOST "10.0.1.101"
+#define PORT 9876
 
 class ofApp : public ofBaseApp{
 
@@ -33,9 +36,13 @@ class ofApp : public ofBaseApp{
 		ofxCvGrayscaleImage 	grayBg;
 		ofxCvGrayscaleImage 	grayDiff;
 
+		ofxCvBlob   blob;
+
         ofxCvContourFinder 	contourFinder;
 
 		int 				threshold;
 		bool				bLearnBakground;
+
+		ofxOscSender sender;
 
 };

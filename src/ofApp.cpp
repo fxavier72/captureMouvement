@@ -23,7 +23,7 @@ void ofApp::setup()
 
     // Active le flux vidéo en différence
     bLearnBakground = true;
-    threshold = 80;
+    threshold = 20;
     sender.setup(HOST, PORT);
 }
 
@@ -72,28 +72,14 @@ void ofApp::update()
         // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
         contourFinder.findContours(grayDiff, 20, (800*600)/3, 10, true);	// find holes
-
-        for (int i = 0; i < contourFinder.nBlobs; i++)
+        if(contourFinder.nBlobs > 0)
         {
-            contourFinder.blobs[i].draw(360,540);
-
-            // draw over the centroid if the blob is a hole
-            ofSetColor(255);
-                if(contourFinder.blobs[i].hole)
-                {
-                    ofDrawBitmapString("hole", contourFinder.blobs[i].centroid);
-                    ofxOscMessage a;
-                    a.setAddress("/mallarme/annabelle/position");
-                    a.addFloatArg(blob.centroid.x);
-                    a.addFloatArg(blob.centroid.y);
-                    sender.sendMessage(a);
-
-                    ofxOscMessage f;
-                    f.setAddress("/mallarme/florence/position");
-                    f.addFloatArg(blob.centroid.x);
-                    f.addFloatArg(blob.centroid.y);
-                    sender.sendMessage(f);
-                }
+            annabelle = contourFinder.blobs[0];
+            ofxOscMessage a;
+            a.setAddress("/mallarme/annabelle/position");
+            a.addFloatArg(blob.centroid.x);
+            a.addFloatArg(blob.centroid.y);
+            sender.sendMessage(a);
         }
     }
 }
@@ -126,10 +112,10 @@ void ofApp::draw()
         // draw over the centroid if the blob is a hole
         ofSetColor(255);
         if(contourFinder.blobs[i].hole)
-                {
-                    ofDrawBitmapString("hole",
-                                       contourFinder.blobs[i].centroid);
-                }
+        {
+            ofDrawBitmapString("hole", contourFinder.blobs[i].centroid);
+
+        }
     }
 
     // finally, a report:
@@ -144,46 +130,58 @@ void ofApp::draw()
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key)
+{
+    if(key == 'c')
+    {
+        bLearnBakground = true;
+    }
+}
+
+//--------------------------------------------------------------
+void ofApp::keyReleased(int key)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::keyReleased(int key){
+void ofApp::mouseMoved(int x, int y )
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
+void ofApp::mouseDragged(int x, int y, int button)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
+void ofApp::mousePressed(int x, int y, int button)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
+void ofApp::mouseReleased(int x, int y, int button)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
+void ofApp::windowResized(int w, int h)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
+void ofApp::gotMessage(ofMessage msg)
+{
 
 }
 
 //--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
+void ofApp::dragEvent(ofDragInfo dragInfo)
+{
 
 }

@@ -36,7 +36,8 @@ class ofApp : public ofBaseApp{
 		ofxCvGrayscaleImage 	grayBg;
 		ofxCvGrayscaleImage 	grayDiff;
 
-		ofxCvBlob   blob;
+		ofxCvBlob   annabelle;
+		ofxCvBlob   florence;
 
         ofxCvContourFinder 	contourFinder;
 

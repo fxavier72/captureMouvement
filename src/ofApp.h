@@ -1,12 +1,19 @@
 #pragma once
 #include "ofMain.h"
-//Inclue la bibliothèque d'openCV
+// Inclue la bibliothèque d'openCV
 #include "ofxOpenCv.h"
 #include "ofxOsc.h"
-//Permet d'utiliser la camera en live
+
+// Permet d'utiliser la camera en live
 #define _USE_LIVE_VIDEO
-#define HOST "10.0.1.101"
+
+// Définition de l'hote et du port pour OSC
+#define HOST "172.16.69.255"
 #define PORT 9876
+
+// Définition de la résolution de la caméra
+#define resX 800
+#define resY 600
 
 class ofApp : public ofBaseApp{
 
@@ -25,7 +32,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		//On instancie la caméra live
+		//On défini la caméra live
 		#ifdef _USE_LIVE_VIDEO
 		  ofVideoGrabber 		vidGrabber;
 		#endif

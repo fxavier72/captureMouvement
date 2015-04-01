@@ -3,6 +3,10 @@
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 
+/// \brief Description breve
+///
+/// Description longue ....
+/// \param Youpi correspond à ...
 void ofApp::setup()
 {
 
@@ -13,13 +17,13 @@ void ofApp::setup()
     // Défini le nombre d'image par seconde
     vidGrabber.setDesiredFrameRate(60);
     // On défini la taille du flux vidéo
-    vidGrabber.initGrabber(800,600);
+    vidGrabber.initGrabber(resX,resY);
 #endif
 
     // Passe le flux vidéo en niveaux de gris
-    grayImage.allocate(800,600);
+    grayImage.allocate(resX,resY);
     // Passe le flux vidéo en différence
-    grayDiff.allocate(800,600);
+    grayDiff.allocate(resX,resY);
 
     // Active le flux vidéo en différence
     bLearnBakground = true;
@@ -41,9 +45,6 @@ void ofApp::update()
 #ifdef _USE_LIVE_VIDEO
     vidGrabber.update();
     bNewFrame = vidGrabber.isFrameNew();
-#else
-    vidPlayer.update();
-    bNewFrame = vidPlayer.isFrameNew();
 #endif
 
 // Si la bNewFrame est activé
@@ -52,9 +53,7 @@ void ofApp::update()
 
 //On défini la taille du flux vidéo
 #ifdef _USE_LIVE_VIDEO
-        colorImg.setFromPixels(vidGrabber.getPixels(), 800,600);
-#else
-        colorImg.setFromPixels(vidPlayer.getPixels(), 800,600);
+        colorImg.setFromPixels(vidGrabber.getPixels(), resX,resY);
 #endif
         // On transforme l'image couleur en image noir et blanc
         grayImage = colorImg;
@@ -69,17 +68,24 @@ void ofApp::update()
         grayDiff.threshold(threshold);
 
         // On crée les contours
-        // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
+        // find contours which are between the size of 200 pixels and 1/3 the w*h pixels.
         // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayDiff, 20, (800*600)/3, 10, true);	// find holes
+        contourFinder.findContours(grayDiff, 200, (resX*resY)/3, 10, true);	// find holes
         if(contourFinder.nBlobs > 0)
         {
             annabelle = contourFinder.blobs[0];
             ofxOscMessage a;
             a.setAddress("/mallarme/annabelle/position");
-            a.addFloatArg(blob.centroid.x);
-            a.addFloatArg(blob.centroid.y);
+            a.addFloatArg(annabelle.centroid.x/resX);
+            a.addFloatArg(annabelle.centroid.y/resY);
             sender.sendMessage(a);
+
+            florence = contourFinder.blobs[1];
+            ofxOscMessage f;
+            f.setAddress("/mallarme/florence/position");
+            f.addFloatArg(florence.centroid.x/resX);
+            f.addFloatArg(florence.centroid.y/resY);
+            sender.sendMessage(f);
         }
     }
 }
@@ -97,7 +103,7 @@ void ofApp::draw()
 
     ofFill();
     ofSetHexColor(0x333333);
-    ofRect(360,540,800,600);
+    ofRect(360,540,resX,resY);
     ofSetHexColor(0xffffff);
 
     // we could draw the whole contour finder
@@ -113,7 +119,7 @@ void ofApp::draw()
         ofSetColor(255);
         if(contourFinder.blobs[i].hole)
         {
-            ofDrawBitmapString("hole", contourFinder.blobs[i].centroid);
+            ofDrawBitmapString("annabelle", contourFinder.blobs[i].centroid);
 
         }
     }

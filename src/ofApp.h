@@ -3,12 +3,13 @@
 // Inclue la bibliothèque d'openCV
 #include "ofxOpenCv.h"
 #include "ofxOsc.h"
+#include "ofxCvImage.h"
 
 // Permet d'utiliser la camera en live
 #define _USE_LIVE_VIDEO
 
 // Définition de l'hote et du port pour OSC
-#define HOST "172.16.69.255"
+#define HOST "172.16.101.45"
 #define PORT 9876
 
 // Définition de la résolution de la caméra
@@ -38,7 +39,6 @@ class ofApp : public ofBaseApp{
 		#endif
 
         ofxCvColorImage			colorImg;
-
         ofxCvGrayscaleImage 	grayImage;
 		ofxCvGrayscaleImage 	grayBg;
 		ofxCvGrayscaleImage 	grayDiff;

@@ -22,8 +22,11 @@ void ofApp::setup()
 
     // Passe le flux vidéo en niveaux de gris
     grayImage.allocate(resX,resY);
+
+
     // Passe le flux vidéo en différence
     grayDiff.allocate(resX,resY);
+    grayDiff.blur(10);
 
     // Active le flux vidéo en différence
     bLearnBakground = true;
@@ -66,11 +69,11 @@ void ofApp::update()
         // Prend la valeur de la différence entre le fond et le flux puis on y applique un seuil
         grayDiff.absDiff(grayBg, grayImage);
         grayDiff.threshold(threshold);
+        grayDiff.blur(10);
 
-        // On crée les contours
-        // find contours which are between the size of 200 pixels and 1/3 the w*h pixels.
-        // also, find holes is set to true so we will get interior contours as well....
-        contourFinder.findContours(grayDiff, 200, (resX*resY)/3, 10, true);	// find holes
+        // On crée les contours avec en parametre le type d'image qu'on prend la taille mini
+        // pour afficher le blob, la taille max le nombre de blob a afficher.
+        contourFinder.findContours(grayDiff, 3000, (resX*resY)/3, 2, true);	// find holes
         if(contourFinder.nBlobs > 0)
         {
             annabelle = contourFinder.blobs[0];
@@ -117,11 +120,30 @@ void ofApp::draw()
 
         // draw over the centroid if the blob is a hole
         ofSetColor(255);
-        if(contourFinder.blobs[i].hole)
+
+        // On identifie les blobs
+        if(contourFinder.blobs[0].hole)
+        {
+            ofDrawBitmapString("anabelle",
+                               contourFinder.blobs[0].centroid.x + 360,
+                               contourFinder.blobs[0].centroid.y + 540);
+        }
+
+        if(contourFinder.blobs[1].hole)
+        {
+            ofDrawBitmapString("florence",
+                               contourFinder.blobs[1].centroid.x + 360,
+                               contourFinder.blobs[1].centroid.y + 540);
+        }
+        /*if(contourFinder.blobs[0].hole)
         {
             ofDrawBitmapString("annabelle", contourFinder.blobs[i].centroid);
-
         }
+
+        if(contourFinder.blobs[1].hole)
+        {
+            ofDrawBitmapString("florence", contourFinder.blobs[i].centroid);
+        }*/
     }
 
     // finally, a report:

@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #define _USE_LIVE_VIDEO
+#include <danseuses.h>
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 
@@ -85,6 +86,9 @@ void ofApp::update()
     vidGrabber.update();
     bNewFrame = vidGrabber.isFrameNew();
 #endif
+
+
+
 
 // Si la bNewFrame est activé
     if (bNewFrame)
